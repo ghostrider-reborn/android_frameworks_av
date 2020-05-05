@@ -139,11 +139,20 @@ status_t Camera3Device::initialize(sp<CameraProviderManager> manager, const Stri
         for (auto& physicalId : physicalCameraIds) {
             res = manager->getCameraCharacteristics(
                     physicalId, &mPhysicalDeviceInfoMap[physicalId]);
+            // HAX for ginkgo - check the next camera id
             if (res != OK) {
-                SET_ERR_L("Could not retrieve camera %s characteristics: %s (%d)",
+                CLOGW("Could not retrieve camera %s characteristics: %s (%d)",
                         physicalId.c_str(), strerror(-res), res);
-                session->close();
-                return res;
+                physicalId = std::to_string(20);
+                CLOGW("Trying physical camera %s if available", physicalId.c_str());
+                res = manager->getCameraCharacteristics(
+                        physicalId, &mPhysicalDeviceInfoMap[physicalId]);
+                if (res != OK) {
+                    SET_ERR_L("Could not retrieve camera %s characteristics: %s (%d)",
+                            physicalId.c_str(), strerror(-res), res);
+                    session->close();
+                    return res;
+                }
             }
 
             if (DistortionMapper::isDistortionSupported(mPhysicalDeviceInfoMap[physicalId])) {
