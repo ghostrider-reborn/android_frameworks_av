@@ -493,9 +493,9 @@ private:
                     sp<ProviderInfo> parentProvider,
                     const std::vector<std::string>& publicCameraIds, sp<InterfaceT> interface);
             virtual ~DeviceInfo3();
-        private:
             CameraMetadata mCameraCharacteristics;
             std::unordered_map<std::string, CameraMetadata> mPhysicalCameraCharacteristics;
+            void queryPhysicalCameraHax();
             void queryPhysicalCameraIds();
             bool isPublicallyHiddenSecureCamera();
             status_t fixupMonochromeTags();
